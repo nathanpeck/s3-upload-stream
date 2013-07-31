@@ -16,6 +16,16 @@ Problems:
 - There may be some nasty issues with tremendously large, fast incoming streams that can't upload as fast as they fill up the buffers. The stream to S3 pulls about 5mb of data from the incoming stream and then writes it all to S3. Meanwhile while it writes to S3 it pauses the incoming data stream until the upload of that part completes. So if that incoming stream is meanwhile filling up all the buffers with tons of data then bad things might happen.
 - I can't think of a good way right now to provide tests without giving away my AWS credentials. Maybe there is a way to make a fake S3 service for the purpose of making tests for the library, but honestly that is way too much work for such a simple module.
 
+Installation
+------------
+
+```
+npm install s3-upload-stream
+```
+
+Usage
+-----
+
 ``` javascript
 	var Uploader = require('s3-upload-stream').Uploader,
 		zlib       = require('zlib'),
