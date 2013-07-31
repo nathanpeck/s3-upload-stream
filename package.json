@@ -1,0 +1,25 @@
+{
+  "name": "s3-upload-stream",
+  "description": "Writeable stream for uploading to S3 via the multipart API.",
+  "version": "0.1.4",
+  "author": {
+    "name": "Nathan Peck",
+    "email": "nathan@storydesk.com"
+  },
+  "dependencies": {
+    "async": "",
+    "aws-sdk": ""
+  },
+  "keywords": [
+    "aws",
+    "s3",
+    "stream"
+  ],
+  "main": "./lib/s3-upload-stream.js",
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "./test/test.js"
+  }
+}
