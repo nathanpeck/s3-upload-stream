@@ -1,10 +1,14 @@
 {
   "name": "s3-upload-stream",
   "description": "Writeable stream for uploading to S3 via the multipart API.",
-  "version": "0.1.4",
+  "version": "0.0.2",
   "author": {
     "name": "Nathan Peck",
     "email": "nathan@storydesk.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nathanpeck/s3-upload-stream.git"
   },
   "dependencies": {
     "async": "",
@@ -15,6 +19,8 @@
     "s3",
     "stream"
   ],
+  "license": "MIT",
+  "readmeFilename": "README.md",
   "main": "./lib/s3-upload-stream.js",
   "engines": {
     "node": "*"
