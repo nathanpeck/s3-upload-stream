@@ -1,7 +1,7 @@
 {
   "name": "s3-upload-stream",
   "description": "Writeable stream for uploading to S3 via the multipart API.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": {
     "name": "Nathan Peck",
     "email": "nathan@storydesk.com"
