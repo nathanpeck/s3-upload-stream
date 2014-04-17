@@ -1,69 +1,118 @@
 ## s3-upload-stream
 
-A basic pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
+A pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
 
-Advantages
-----------
+### Updates
 
-- You don't need to know the size of the stream prior to uploading, which works excellently for cases where you are creating files from dynamic content or incoming streams that you don't know the size of.
-- Easy to use, clean piping mechanism.
-- Uses the official Amazon SDK for Node.js
-- You can provide options for the upload call directly to do things like set server side encryption, reduced redundancy storage, or access level on the object, which I found some other similar modules to be lacking.
-- Emits "chunk" events which expose the amount of incoming data received by the writable stream versus the amount of data that has been uploaded via the multipart API so far, allowing you to create a progress bar if you need it.
+_April 17, 2014_ - Made the connection parameters optional for those who are following Amazon's best practices of allowing the SDK to get AWS credentials from environment variables or AMI roles.
 
-Problems
---------
+### Why use this stream?
 
-- The multipart upload API does not accept chunks less than 5mb in size. So although this module emits "chunk" events which can be used to show progress, the progress is not very granular, as the chunk events are only emitted every 5 MB, which even on the fastest connections isn't very frequently. (Note: this could be fixed by abandoning the official API, and making direct requests to S3, and piping each 5mb chunk directly into the web request, allowing for much more granular progress reports.)
-- Requires your S3 credentials each time you want to upload. This could be cleaned up to only require credentials once which would then be reused each time you create an upload stream.
-- No tests at the moment.
+* This upload stream does not require you to know the length of your content prior to beginning uploading. Many other popular S3 wrappers such as [Knox](https://github.com/LearnBoost/knox) also allow you to upload streams to S3, but they require you to specify the content length. This is not always feasible.
+* By piping content to S3 via the multipart file upload API you can keep memory usage low even when operating a stream that is GB in size. Many other libraries actually store the entire stream in memory and then upload it in one piece. This stream avoids high memory usage by flushing the stream to S3 in 5 MB parts such that it should only ever store 5 MB of the stream data at a time.
+* This package utilizes the official Amazon SDK for Node.js, helping keep it small and efficient.
+* You can provide options for the upload call directly to do things like set server side encryption, reduced redundancy storage, or access level on the object, which some other similar streams are lacking.
+* Emits "chunk" events which expose the amount of incoming data received by the writable stream versus the amount of data that has been uploaded via the multipart API so far, allowing you to create a progress bar if that is a requirement.
 
-Installation
-------------
+### Limits
+
+* The multipart upload API does not accept chunks less than 5 MB in size. So although this stream emits "chunk" events which can be used to show progress, the progress is not very granular, as the events are only emitted every 5 MB.
+* The Amazon SDK has a limit of 10,000 parts when doing a mulitpart upload. Since the part size is currently set to 5 MB this means that your stream will fail to upload if it contains more than 5 GB of data. This can be solved by modifying the property `maxPartSize` of the UploadStreamObject. By increasing the `maxPartSize` you will increase the amount of stream data that gets buffered in memory between flushes, but it will allow you to handle streams of many TB if necessary.
+
+## Usage
+
+### Uploader(destinationDetails, callback);
+
+The recommended approach for credential management is to [set your AWS API keys using environment variables](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html) or [AMI roles](http://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html). If you are following these best practices for separating your credentials from your code then there is no need to specify connection details when creating an upload stream.
+
+The `destinationDetails` parameter takes the following form:
+
+__Required Properties__
+
+* `Bucket` - The name of the bucket that you want the stream to save to
+* `Key` - The name of the "file" on S3 that the stream will save into
+
+__Optional Parameters__
+
+You can specify many other optional parameters to for content type, ACL (access control), expiration, metadata, server side encryption, and storage class for reduce redundancy. The AWS SDK documentation contains a [full list of these parameters](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createMultipartUpload-property).
+
+### Uploader(connectionDetails, destinationDetails, callback);
+
+If you want to manage the connection used by the upload stream yourself you can specify the connection details directly in one of two forms:
+
+__Directly Specify a Client__
+
+If you want to reuse a client that you have created elsewhere in your code you can pass it in as a property of `connectionDetails`:
+
+```js
+{
+  s3Client: yourS3ClientHere,
+}
+```
+
+__Specify Credentials__
+
+If you would like the upload stream to create its own client then you can pass in credentials directly:
+
+```js
+{
+  accessKeyId: "REDACTED",
+  secretAccessKey: "REDACTED",
+  region: "us-east-1"
+}
+```
+
+### Example
+
+```js
+var Uploader = require('s3-upload-stream').Uploader,
+    zlib     = require('zlib'),
+    fs       = require('fs');
+
+var read = fs.createReadStream('./path/to/file.ext');
+var compress = zlib.createGzip();
+
+var UploadStreamObject = new Uploader(
+  // Connection details. (Optional if your credentials are specified
+  // via environment variables or AMI role.)
+  {
+    "accessKeyId": "REDACTED",
+    "secretAccessKey": "REDACTED",
+    "region": "us-east-1"
+  },
+  // Upload destination details.
+  // For a full list of possible parameters see:
+  // http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createMultipartUpload-property
+  {
+    "Bucket": "your-bucket-name",
+    "Key": "uploaded-file-name " + new Date()
+  },
+  function (err, uploadStream)
+  {
+    if(err)
+      console.log(err, uploadStream);
+    else
+    {
+      // This event is emitted when a single part of the stream is uploaded.
+      uploadStream.on('chunk', function (data) {
+        console.log(data);
+      });
+
+      // Emitted when all parts have been flushed to S3 and the multipart
+      // upload has been finalized.
+      uploadStream.on('uploaded', function (data) {
+        console.log(data);
+      });
+
+      // Pipe the file stream through Gzip compression and upload result to S3.
+      read.pipe(compress).pipe(uploadStream);
+    }
+  }
+);
+```
+
+### Installation
 
 ```
 npm install s3-upload-stream
-```
-
-Usage
------
-
-``` javascript
-	var Uploader = require('s3-upload-stream').Uploader,
-		zlib       = require('zlib'),
-		fs         = require('fs');
-
-	var read = fs.createReadStream('./path/to/file.ext');
-	var compress = zlib.createGzip();
-
-	var UploadStreamObject = new Uploader(
-		//Connection details.
-		{
-			"accessKeyId": "REDACTED",
-			"secretAccessKey": "REDACTED",
-			"region": "us-east-1"
-		},
-		//Upload destination details.
-		{
-			"Bucket": "your-bucket-name",
-			"Key": "uploaded-file-name " + new Date()
-		},
-		function (err, uploadStream)
-		{
-			if(err)
-				console.log(err, uploadStream);
-			else
-			{
-				uploadStream.on('chunk', function (data) {
-					console.log(data);
-				});
-				uploadStream.on('uploaded', function (data) {
-					console.log(data);
-				});
-
-				//Pipe the file stream through Gzip compression and upload result to S3.
-				read.pipe(compress).pipe(uploadStream);
-			}
-		}
-	);
 ```

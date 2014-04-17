@@ -1,0 +1,11 @@
+node_modules
+extras/conversion/node_modules
+dashboard/dist
+dashboard/vendor
+dashboard/node_modules
+dashboard/test/coverage
+scripts
+extras
+logstash
+dashboard
+console

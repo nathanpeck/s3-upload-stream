@@ -1,0 +1,30 @@
+{
+    "asi": false,
+    "expr": true,
+    "loopfunc": true,
+    "curly": false,
+    "unused": true,
+    "evil": true,
+    "white": true,
+    "undef": true,
+    "trailing": true,
+    "browser": true,
+    "predef": [
+        "$",
+        "FormBot",
+        "socket",
+        "confirm",
+        "it",
+        "before",
+        "describe",
+        "alert",
+        "require",
+        "__dirname",
+        "process",
+        "exports",
+        "console",
+        "Buffer",
+        "module"
+    ],
+    "indent": 2
+}
