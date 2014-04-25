@@ -4,6 +4,8 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Updates
 
+_April 25, 2014_ -  Fixed a race condition bug that occured occasionally with streams very close to the 5 MB size threshold where the multipart upload would be finalized on S3 prior to the last data buffer being flushed, resulting in the last part of the stream being cut off in the resulting S3 file. Also added a method for adjusting the part size dynamically. (__Notice:__ If you are using an older version of this module I highly recommend upgrading to get this latest bugfix.)
+
 _April 17, 2014_ - Made the connection parameters optional for those who are following Amazon's best practices of allowing the SDK to get AWS credentials from environment variables or AMI roles.
 
 ### Why use this stream?
@@ -16,8 +18,8 @@ _April 17, 2014_ - Made the connection parameters optional for those who are fol
 
 ### Limits
 
-* The multipart upload API does not accept chunks less than 5 MB in size. So although this stream emits "chunk" events which can be used to show progress, the progress is not very granular, as the events are only emitted every 5 MB.
-* The Amazon SDK has a limit of 10,000 parts when doing a mulitpart upload. Since the part size is currently set to 5 MB this means that your stream will fail to upload if it contains more than 5 GB of data. This can be solved by modifying the property `maxPartSize` of the UploadStreamObject. By increasing the `maxPartSize` you will increase the amount of stream data that gets buffered in memory between flushes, but it will allow you to handle streams of many TB if necessary.
+* The multipart upload API does not accept chunks less than 5 MB in size. So although this stream emits "chunk" events which can be used to show progress, the progress is not very granular, as the events are only per part. By default this means that you will receive an event each 5 MB.
+* The Amazon SDK has a limit of 10,000 parts when doing a mulitpart upload. Since the part size is currently set to 5 MB this means that your stream will fail to upload if it contains more than 5 GB of data. This can be solved by using the 'stream.maxPartSize()' method of the writable stream to set the max size of an upload part, as documented below. By increasing this value you should be able to save streams that are many TB in size.
 
 ## Usage
 
@@ -107,6 +109,33 @@ var UploadStreamObject = new Uploader(
       // Pipe the file stream through Gzip compression and upload result to S3.
       read.pipe(compress).pipe(uploadStream);
     }
+  }
+);
+```
+
+## Optional Configuration
+
+### stream.maxPartSize(sizeInBytes)
+
+Used to adjust the maximum amount of stream data that will be buffered in memory prior to flushing. The lowest possible value, and default value, is 5 MB. It is not possible to set this value any lower than 5 MB due to Amazon S3 restrictions, but there is no hard upper limit. The higher the value you choose the more stream data will be buffered in memory before flushing to S3.
+
+The main reason for setting this to a higher value instead of using the default is if you have a stream with more than 5 GB of data, and therefore need larger part sizes in order to flush the entire stream while also staying within Amazon's upper limit of 10,000 parts for the multipart upload API.
+
+```js
+var UploadStreamObject = new Uploader(
+  {
+    "Bucket": "your-bucket-name",
+    "Key": "uploaded-file-name " + new Date()
+  },
+  function (err, uploadStream)
+  {
+    uploadStream.maxPartSize(20971520) //20 MB
+
+    uploadStream.on('uploaded', function (data) {
+      console.log('done');
+    });
+
+    read.pipe(uploadStream);
   }
 );
 ```
