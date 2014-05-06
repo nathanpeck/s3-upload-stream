@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Uploader = require('s3-upload-stream').Uploader,
+var Uploader = require('../lib/s3-upload-stream.js').Uploader,
     zlib     = require('zlib'),
     fs       = require('fs');
 
@@ -24,7 +24,7 @@ var UploadStreamObject = new Uploader(
   },
   function (err, uploadStream)
   {
-    if(err)
+    if (err)
       console.log(err, uploadStream);
     else
     {

@@ -13,6 +13,11 @@
   "dependencies": {
     "aws-sdk": "1.18.0"
   },
+  "devDependencies": {
+    "mocha":      "1.17.1",
+    "chai":       "1.8.1",
+    "proxyquire": "0.6.0"
+  },
   "keywords": [
     "aws",
     "s3",
@@ -25,5 +30,8 @@
   "main": "./lib/s3-upload-stream.js",
   "engines": {
     "node": "*"
+  },
+  "scripts": {
+    "test": "mocha -R spec -s 100 ./tests/test.js"
   }
 }
