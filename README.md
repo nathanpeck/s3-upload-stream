@@ -4,7 +4,7 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Updates
 
-_May 6, 2014_ - Added tests using a stubbed out version of the Amazon S3 client. These tests will ensure that the upload stream behaves properly, calls S3 correctly, and emits the proper events.
+_May 6, 2014_ - Added tests using a stubbed out version of the Amazon S3 client. These tests will ensure that the upload stream behaves properly, calls S3 correctly, and emits the proper events. Also fixed bug with the functionality to dynamically adjust the part size.
 
 _April 25, 2014_ - Fixed a race condition bug that occured occasionally with streams very close to the 5 MB size threshold where the multipart upload would be finalized on S3 prior to the last data buffer being flushed, resulting in the last part of the stream being cut off in the resulting S3 file. Also added a method for adjusting the part size dynamically. (__Notice:__ If you are using an older version of this module I highly recommend upgrading to get this latest bugfix.)
 
