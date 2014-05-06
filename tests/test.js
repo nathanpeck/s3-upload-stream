@@ -162,6 +162,41 @@ describe('Creating upload stream', function () {
   });
 });
 
+describe('Stream Methods', function () {
+  var uploadStream, uploadObject;
+
+  before(function (done) {
+    uploadObject = new UploadStream(
+      {
+        s3Client: new AWSstub.S3()
+      },
+      {
+        "Bucket": "test-bucket-name",
+        "Key": "test-file-name"
+      },
+      function (err, data) {
+        expect(err).to.equal(null);
+        uploadStream = data;
+        done();
+      }
+    );
+  });
+
+  describe('Setting max part size to a value greater than 5 MB', function () {
+    it('max part size should be set to that value', function () {
+      uploadObject.maxPartSize(20971520);
+      expect(uploadObject.partSizeThreshold).to.equal(20971520);
+    });
+  });
+
+  describe('Setting max part size to a value less than 5 MB', function () {
+    it('max part size should be set to 5 MB exactly', function () {
+      uploadObject.maxPartSize(4242880);
+      expect(uploadObject.partSizeThreshold).to.equal(5242880);
+    });
+  });
+});
+
 describe('Piping data into the upload stream', function () {
   var uploadStream, uploadObject;
 

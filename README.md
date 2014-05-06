@@ -147,3 +147,9 @@ var UploadStreamObject = new Uploader(
 ```
 npm install s3-upload-stream
 ```
+
+### Running Tests
+
+```
+npm test
+```
