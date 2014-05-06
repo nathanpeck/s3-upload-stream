@@ -1,4 +1,4 @@
-## s3-upload-stream
+## s3-upload-stream [![Build Status](https://travis-ci.org/nathanpeck/s3-upload-stream.svg)](https://travis-ci.org/nathanpeck/s3-upload-stream)
 
 A pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
 
