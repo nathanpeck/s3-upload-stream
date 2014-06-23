@@ -20,12 +20,20 @@ var AWSstub = {
     this.createMultipartUpload = function (details, callback) {
       // Make sure that this AWS function was called with the right parameters.
       expect(details).to.have.property('Bucket');
-      expect(details).to.have.property('Key');
+      expect(details.Key).to.be.a('string');
 
-      // Make the callback with a fake upload ID.
-      callback(null, {
-        UploadId: 'upload-id'
-      });
+      expect(details).to.have.property('Key');
+      expect(details.Key).to.be.a('string');
+
+      if (details.Key == 'create-fail') {
+        // Trigger a simulated error when a magic file name is used.
+        callback('Simulated failure from mocked API');
+      }
+      else {
+        callback(null, {
+          UploadId: 'upload-id'
+        });
+      }
     };
 
     this.uploadPart = function (details, callback) {
@@ -37,7 +45,7 @@ var AWSstub = {
       expect(details.Bucket).to.equal('test-bucket-name');
 
       expect(details).to.have.property('Key');
-      expect(details.Key).to.equal('test-file-name');
+      expect(details.Key).to.be.a('string');
 
       expect(details).to.have.property('UploadId');
       expect(details.UploadId).to.equal('upload-id');
@@ -45,10 +53,35 @@ var AWSstub = {
       expect(details).to.have.property('PartNumber');
       expect(details.PartNumber).to.an.integer;
 
-      // Return an ETag
-      callback(null, {
-        ETag: 'etag'
-      });
+      if (details.Key == 'upload-fail') {
+        callback('Simulated failure from mocked API');
+      }
+      else {
+        // Return an ETag
+        callback(null, {
+          ETag: 'etag'
+        });
+      }
+    };
+
+    this.abortMultipartUpload = function (details, callback) {
+      // Make sure that all the properties are there
+      expect(details).to.have.property('Bucket');
+      expect(details.Bucket).to.equal('test-bucket-name');
+
+      expect(details).to.have.property('Key');
+      expect(details.Key).to.be.a('string');
+
+      expect(details).to.have.property('UploadId');
+      expect(details.UploadId).to.equal('upload-id');
+
+      if (details.Key == 'abort-fail') {
+        // Trigger a simulated error when a magic file name is used.
+        callback('Simulated failure from mocked API');
+      }
+      else {
+        callback();
+      }
     };
 
     this.completeMultipartUpload = function (details, callback) {
@@ -57,7 +90,7 @@ var AWSstub = {
       expect(details.Bucket).to.equal('test-bucket-name');
 
       expect(details).to.have.property('Key');
-      expect(details.Key).to.equal('test-file-name');
+      expect(details.Key).to.be.a('string');
 
       expect(details).to.have.property('UploadId');
       expect(details.UploadId).to.equal('upload-id');
@@ -72,10 +105,15 @@ var AWSstub = {
         expect(partNumber).to.be.an.integer;
       });
 
-      // Return an ETag
-      callback(null, {
-        ETag: 'etag'
-      });
+      if (details.Key == 'complete-fail' || details.Key == 'abort-fail') {
+        // Trigger a simulated error when a magic file name is used.
+        callback('Simulated failure from mocked API');
+      }
+      else {
+        callback(null, {
+          ETag: 'etag'
+        });
+      }
     };
   }
 };
@@ -254,6 +292,142 @@ describe('Piping data into the upload stream', function () {
 
     file.on('error', function () {
       throw 'Error! Unable to open the file for reading';
+    });
+  });
+});
+
+describe('S3 Error catching', function () {
+  describe('Error creating multipart upload', function () {
+    var uploadObject;
+
+    it('should return an error to the callback', function (done) {
+      uploadObject = new UploadStream(
+        {
+          s3Client: new AWSstub.S3()
+        },
+        {
+          "Bucket": "test-bucket-name",
+          "Key": "create-fail"
+        },
+        function (err) {
+          expect(err).to.be.a('string');
+          done();
+        }
+      );
+    });
+  });
+
+  describe('Error uploading part', function () {
+    var uploadStream, uploadObject;
+
+    before(function (done) {
+      uploadObject = new UploadStream(
+        {
+          s3Client: new AWSstub.S3()
+        },
+        {
+          "Bucket": "test-bucket-name",
+          "Key": "upload-fail"
+        },
+        function (err, data) {
+          expect(err).to.equal(null);
+          uploadStream = data;
+          done();
+        }
+      );
+    });
+
+    it('should abort the multipart upload and emit an error', function (done) {
+      var file = fs.createReadStream(process.cwd() + '/tests/test.js');
+
+      uploadStream.on('error', function (err) {
+        expect(err).to.be.a('string');
+        done();
+      });
+
+      file.on('open', function () {
+        file.pipe(uploadStream);
+      });
+
+      file.on('error', function () {
+        throw 'Error! Unable to open the file for reading';
+      });
+    });
+  });
+
+  describe('Error completing upload', function () {
+    var uploadStream, uploadObject;
+
+    before(function (done) {
+      uploadObject = new UploadStream(
+        {
+          s3Client: new AWSstub.S3()
+        },
+        {
+          "Bucket": "test-bucket-name",
+          "Key": "complete-fail"
+        },
+        function (err, data) {
+          expect(err).to.equal(null);
+          uploadStream = data;
+          done();
+        }
+      );
+    });
+
+    it('should abort the multipart upload and emit an error', function (done) {
+      var file = fs.createReadStream(process.cwd() + '/tests/test.js');
+
+      uploadStream.on('error', function (err) {
+        expect(err).to.be.a('string');
+        done();
+      });
+
+      file.on('open', function () {
+        file.pipe(uploadStream);
+      });
+
+      file.on('error', function () {
+        throw 'Error! Unable to open the file for reading';
+      });
+    });
+  });
+
+  describe('Error aborting upload', function () {
+    var uploadStream, uploadObject;
+
+    before(function (done) {
+      uploadObject = new UploadStream(
+        {
+          s3Client: new AWSstub.S3()
+        },
+        {
+          "Bucket": "test-bucket-name",
+          "Key": "abort-fail"
+        },
+        function (err, data) {
+          expect(err).to.equal(null);
+          uploadStream = data;
+          done();
+        }
+      );
+    });
+
+    it('should emit an error', function (done) {
+      var file = fs.createReadStream(process.cwd() + '/tests/test.js');
+
+      uploadStream.on('error', function (err) {
+        expect(err).to.be.a('string');
+        done();
+      });
+
+      file.on('open', function () {
+        file.pipe(uploadStream);
+      });
+
+      file.on('error', function () {
+        throw 'Error! Unable to open the file for reading';
+      });
     });
   });
 });

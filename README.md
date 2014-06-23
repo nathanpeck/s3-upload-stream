@@ -2,7 +2,9 @@
 
 A pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
 
-### Updates
+### Changelog
+
+_June 23, 2014_ - Now with better error handling. If an error occurs while uploading a part to S3, or completing a multipart upload then the in progress multipart upload will be aborted (to delete the uploaded parts from S3) and a more descriptive error message will be emitted instead of the raw error response from S3.
 
 _May 6, 2014_ - Added tests using a stubbed out version of the Amazon S3 client. These tests will ensure that the upload stream behaves properly, calls S3 correctly, and emits the proper events.
 
@@ -142,6 +144,15 @@ var UploadStreamObject = new Uploader(
 );
 ```
 
+### Tuning configuration of the AWS SDK
+
+The following configuration tuning can help prevent errors when using less reliable internet connections (such as 3G data if you are using Node.js on the Tessel) by causing the AWS SDK to detect upload timeouts and retry.
+
+```js
+var AWS = require('aws-sdk');
+AWS.config.httpOptions = {timeout: 5000};
+```
+
 ### Installation
 
 ```
@@ -153,3 +164,28 @@ npm install s3-upload-stream
 ```
 npm test
 ```
+
+### License
+
+(The MIT License)
+
+Copyright (c) 2014 Nathan Peck <nathan@storydesk.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
