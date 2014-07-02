@@ -23,7 +23,7 @@ _April 17, 2014_ - Made the connection parameters optional for those who are fol
 ### Limits
 
 * The multipart upload API does not accept chunks less than 5 MB in size. So although this stream emits "chunk" events which can be used to show progress, the progress is not very granular, as the events are only per part. By default this means that you will receive an event each 5 MB.
-* The Amazon SDK has a limit of 10,000 parts when doing a mulitpart upload. Since the part size is currently set to 5 MB this means that your stream will fail to upload if it contains more than 5 GB of data. This can be solved by using the 'stream.maxPartSize()' method of the writable stream to set the max size of an upload part, as documented below. By increasing this value you should be able to save streams that are many TB in size.
+* The Amazon SDK has a limit of 10,000 parts when doing a mulitpart upload. Since the part size is currently set to 5 MB this means that your stream will fail to upload if it contains more than 50 GB of data. This can be solved by using the 'stream.maxPartSize()' method of the writable stream to set the max size of an upload part, as documented below. By increasing this value you should be able to save streams that are many TB in size.
 
 ## Usage
 
@@ -123,7 +123,7 @@ var UploadStreamObject = new Uploader(
 
 Used to adjust the maximum amount of stream data that will be buffered in memory prior to flushing. The lowest possible value, and default value, is 5 MB. It is not possible to set this value any lower than 5 MB due to Amazon S3 restrictions, but there is no hard upper limit. The higher the value you choose the more stream data will be buffered in memory before flushing to S3.
 
-The main reason for setting this to a higher value instead of using the default is if you have a stream with more than 5 GB of data, and therefore need larger part sizes in order to flush the entire stream while also staying within Amazon's upper limit of 10,000 parts for the multipart upload API.
+The main reason for setting this to a higher value instead of using the default is if you have a stream with more than 50 GB of data, and therefore need larger part sizes in order to flush the entire stream while also staying within Amazon's upper limit of 10,000 parts for the multipart upload API.
 
 ```js
 var UploadStreamObject = new Uploader(
