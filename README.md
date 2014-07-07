@@ -2,7 +2,7 @@
 
 A pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
 
-[![NPM](https://nodei.co/npm/s3-upload-stream.png?downloads=true)](https://nodei.co/npm/s3-upload-stream/)
+[![NPM](https://nodei.co/npm/s3-upload-stream.png?downloads=true)](https://www.npmjs.org/package/s3-upload-stream)
 
 ### Changelog
 
