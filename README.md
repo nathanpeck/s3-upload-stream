@@ -2,6 +2,8 @@
 
 A pipeable write stream which uploads to Amazon S3 using the multipart file upload API.
 
+[![NPM](https://nodei.co/npm/s3-upload-stream.png?downloads=true)](https://nodei.co/npm/s3-upload-stream/)
+
 ### Changelog
 
 _June 23, 2014_ - Now with better error handling. If an error occurs while uploading a part to S3, or completing a multipart upload then the in progress multipart upload will be aborted (to delete the uploaded parts from S3) and a more descriptive error message will be emitted instead of the raw error response from S3.
