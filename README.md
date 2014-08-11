@@ -6,13 +6,14 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
-_June 23, 2014_ - Now with better error handling. If an error occurs while uploading a part to S3, or completing a multipart upload then the in progress multipart upload will be aborted (to delete the uploaded parts from S3) and a more descriptive error message will be emitted instead of the raw error response from S3.
+## 0.5.0 (2014-08-11)
 
-_May 6, 2014_ - Added tests using a stubbed out version of the Amazon S3 client. These tests will ensure that the upload stream behaves properly, calls S3 correctly, and emits the proper events. Also fixed bug with the functionality to dynamically adjust the part size.
+* Added client caching to reuse an existing s3 client rather than creating a new one for each upload. Fixes #6
+* Updated the maxPartSize to be a hard limit instead of a soft one so that generated ETAG's are consistent due to the reliable size of the uploaded parts. Fixes #7
+* Added a changelog.md file. Fixes #8
+* New feature: concurrent part uploads. Now you can optionally enable concurrent part uploads if you wish to allow your application to drain the source stream more quickly and absorb some of the backpressure from a fast incoming stream when uploading to S3.
 
-_April 25, 2014_ - Fixed a race condition bug that occured occasionally with streams very close to the 5 MB size threshold where the multipart upload would be finalized on S3 prior to the last data buffer being flushed, resulting in the last part of the stream being cut off in the resulting S3 file. Also added a method for adjusting the part size dynamically. (__Notice:__ If you are using an older version of this module I highly recommend upgrading to get this latest bugfix.)
-
-_April 17, 2014_ - Made the connection parameters optional for those who are following Amazon's best practices of allowing the SDK to get AWS credentials from environment variables or AMI roles.
+[Historical Changelogs](CHANGELOG.md)
 
 ### Why use this stream?
 
@@ -136,6 +137,31 @@ var UploadStreamObject = new Uploader(
   function (err, uploadStream)
   {
     uploadStream.maxPartSize(20971520) //20 MB
+
+    uploadStream.on('uploaded', function (data) {
+      console.log('done');
+    });
+
+    read.pipe(uploadStream);
+  }
+);
+```
+
+### stream.concurrentParts(numberOfParts)
+
+Used to adjust the number of parts that are concurrently uploaded to S3. By default this is just one at a time, to keep memory usage low and allow the upstream to deal with backpressure. However, in some cases you may wish to drain the stream that you are piping in quickly, and then issue concurrent upload requests to upload multiple parts.
+
+Keep in mind that total memory usage will be at least `maxPartSize` * `concurrentParts` as each concurrent part will be `maxPartSize` large, so it is not recommended that you set both `maxPartSize` and `concurrentParts` to high values, or your process will be buffering large amounts of data in its memory.
+
+```js
+var UploadStreamObject = new Uploader(
+  {
+    "Bucket": "your-bucket-name",
+    "Key": "uploaded-file-name " + new Date()
+  },
+  function (err, uploadStream)
+  {
+    uploadStream.concurrentParts(5)
 
     uploadStream.on('uploaded', function (data) {
       console.log('done');
