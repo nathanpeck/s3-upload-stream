@@ -6,7 +6,7 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
-## 0.5.0 (2014-08-11)
+#### 0.5.0 (2014-08-11)
 
 * Added client caching to reuse an existing s3 client rather than creating a new one for each upload. Fixes #6
 * Updated the maxPartSize to be a hard limit instead of a soft one so that generated ETAG's are consistent due to the reliable size of the uploaded parts. Fixes #7
