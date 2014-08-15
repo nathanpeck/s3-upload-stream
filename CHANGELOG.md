@@ -1,6 +1,11 @@
 Changelog
 =========
 
+#### 0.6.0 (2014-08-15)
+
+* Fix for mismatch between documentation and reality in the maxPartSize() and concurrentParts() options.
+* New feature: part size and concurrect part helpers can be chained now.
+
 ### 0.5.0 (2014-08-11)
 
 * Added client caching to reuse an existing s3 client rather than creating a new one for each upload. Fixes #6

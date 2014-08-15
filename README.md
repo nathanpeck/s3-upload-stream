@@ -6,6 +6,11 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
+#### 0.6.0 (2014-08-15)
+
+* Fix for mismatch between documentation and reality in the maxPartSize() and concurrentParts() options.
+* New feature: part size and concurrect part helpers can be chained now.
+
 #### 0.5.0 (2014-08-11)
 
 * Added client caching to reuse an existing s3 client rather than creating a new one for each upload. Fixes #6
@@ -136,13 +141,15 @@ var UploadStreamObject = new Uploader(
   },
   function (err, uploadStream)
   {
+    uploadStream.maxPartSize(20971520) //20 MB
+
     uploadStream.on('uploaded', function (data) {
       console.log('done');
     });
 
     read.pipe(uploadStream);
   }
-).maxPartSize(20971520) //20 MB
+);
 ```
 
 ### stream.concurrentParts(numberOfParts)
@@ -159,6 +166,7 @@ var UploadStreamObject = new Uploader(
   },
   function (err, uploadStream)
   {
+    uploadStream.concurrentParts(5)
 
     uploadStream.on('uploaded', function (data) {
       console.log('done');
@@ -166,7 +174,7 @@ var UploadStreamObject = new Uploader(
 
     read.pipe(uploadStream);
   }
-).concurrentParts(5);
+);
 ```
 
 ### Tuning configuration of the AWS SDK
