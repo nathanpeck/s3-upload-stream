@@ -142,9 +142,7 @@ var UploadStreamObject = new Uploader(
 
     read.pipe(uploadStream);
   }
-);
-
-uploadStreamObject.maxPartSize(20971520) //20 MB
+).maxPartSize(20971520) //20 MB
 ```
 
 ### stream.concurrentParts(numberOfParts)
@@ -168,9 +166,7 @@ var UploadStreamObject = new Uploader(
 
     read.pipe(uploadStream);
   }
-);
-
-uploadStreamObject.concurrentParts(5);
+).concurrentParts(5);
 ```
 
 ### Tuning configuration of the AWS SDK
