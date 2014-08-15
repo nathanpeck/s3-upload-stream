@@ -136,15 +136,13 @@ var UploadStreamObject = new Uploader(
   },
   function (err, uploadStream)
   {
-    uploadStream.maxPartSize(20971520) //20 MB
-
     uploadStream.on('uploaded', function (data) {
       console.log('done');
     });
 
     read.pipe(uploadStream);
   }
-);
+).maxPartSize(20971520) //20 MB
 ```
 
 ### stream.concurrentParts(numberOfParts)
@@ -161,7 +159,6 @@ var UploadStreamObject = new Uploader(
   },
   function (err, uploadStream)
   {
-    uploadStream.concurrentParts(5)
 
     uploadStream.on('uploaded', function (data) {
       console.log('done');
@@ -169,7 +166,7 @@ var UploadStreamObject = new Uploader(
 
     read.pipe(uploadStream);
   }
-);
+).concurrentParts(5);
 ```
 
 ### Tuning configuration of the AWS SDK
