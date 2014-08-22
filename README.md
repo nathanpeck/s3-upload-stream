@@ -8,7 +8,7 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 #### 0.6.1 (2014-08-15)
 
-Fix for an issue with the internal event emitter being improperly attached. This issue caused crashs in v0.5.0 and v0.6.0, so it is recommended that you upgrade to v0.6.1 if you are using one of the affected versions.
+Fix for an issue with the internal event emitter being improperly attached. This issue caused crashes in v0.5.0 and v0.6.0, so it is recommended that you upgrade to v0.6.1 if you are using one of the affected versions.
 
 [Historical Changelogs](CHANGELOG.md)
 
