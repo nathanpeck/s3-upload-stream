@@ -6,17 +6,9 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
-#### 0.6.0 (2014-08-15)
+#### 0.6.1 (2014-08-15)
 
-* Fix for mismatch between documentation and reality in the maxPartSize() and concurrentParts() options.
-* New feature: part size and concurrect part helpers can be chained now.
-
-#### 0.5.0 (2014-08-11)
-
-* Added client caching to reuse an existing s3 client rather than creating a new one for each upload. Fixes #6
-* Updated the maxPartSize to be a hard limit instead of a soft one so that generated ETAG's are consistent due to the reliable size of the uploaded parts. Fixes #7
-* Added a changelog.md file. Fixes #8
-* New feature: concurrent part uploads. Now you can optionally enable concurrent part uploads if you wish to allow your application to drain the source stream more quickly and absorb some of the backpressure from a fast incoming stream when uploading to S3.
+Fix for an issue with the internal event emitter being improperly attached. This issue caused crashs in v0.5.0 and v0.6.0, so it is recommended that you upgrade to v0.6.1 if you are using one of the affected versions.
 
 [Historical Changelogs](CHANGELOG.md)
 

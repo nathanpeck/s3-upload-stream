@@ -1,10 +1,15 @@
 Changelog
 =========
 
+#### 0.6.1 (2014-08-22)
+
+* The internal event emitter wasn't set up properly, causing errors about the upload stream object no having the .emit and/or .once methods. This bug impacted versions 0.5.0 and 0.6.0. Fixes issue #10.
+
 #### 0.6.0 (2014-08-15)
 
 * Fix for mismatch between documentation and reality in the maxPartSize() and concurrentParts() options.
 * New feature: part size and concurrect part helpers can be chained now.
+* *Warning, this version has a critical bug. It is recommended that you use 0.6.1 instead*
 
 ### 0.5.0 (2014-08-11)
 
@@ -12,6 +17,7 @@ Changelog
 * Updated the maxPartSize to be a hard limit instead of a soft one so that generated ETAG are consistent to to the reliable size of the uploaded parts. Fixes #7
 * Added this file. Fixes #8
 * New feature: concurrent part uploads. Now you can optionally enable concurrent part uploads if you wish to allow your application to drain the source stream more quickly and absorb some of the bottle neck when uploading to S3.
+* *Warning, this version has a critical bug. It is recommended that you use 0.6.1 instead*
 
 ### 0.4.0 (2014-06-23)
 
