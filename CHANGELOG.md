@@ -1,9 +1,13 @@
 Changelog
 =========
 
+#### 0.6.2 (2014-08-31)
+
+Upgrading the AWS SDK dependency to the latest version. Fixes issue #11
+
 #### 0.6.1 (2014-08-22)
 
-* The internal event emitter wasn't set up properly, causing errors about the upload stream object no having the .emit and/or .once methods. This bug impacted versions 0.5.0 and 0.6.0. Fixes issue #10.
+* The internal event emitter wasn't set up properly, causing errors about the upload stream object not having the .emit and/or .once methods. This bug impacted versions 0.5.0 and 0.6.0. Fixes issue #10.
 
 #### 0.6.0 (2014-08-15)
 
