@@ -86,7 +86,7 @@ read.pipe(compress).pipe(upload);
 
 ### package.client(s3);
 
-Configures the S3 client for s3-upload-stream to use.
+Configures the S3 client for s3-upload-stream to use. Please note that this module has only been tested with AWS SDK 2.0 and greater.
 
 This module does not include the AWS SDK itself. Rather you must require the AWS SDK in your own application code, instantiate an S3 client and then supply it to s3-upload-stream.
 
