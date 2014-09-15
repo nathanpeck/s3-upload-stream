@@ -184,11 +184,11 @@ The methods and interface for s3-upload-stream has changed since 1.0 and is no l
 The differences are:
 
 * This package no longer includes Amazon SDK, and now you must include it in your own app code and pass an instantiated Amazon S3 client in.
-* The upload stream is no returned immeadiately, instead of in a callback.
+* The upload stream is now returned immeadiately, instead of in a callback.
 * The "chunk" event emitted is now called "part" instead.
-* The .maxPartSize() and .concurrentParts() methods are no methods of the stream itself, instead of being methods of an object returned from the upload creation method.
+* The .maxPartSize() and .concurrentParts() methods are now methods of the writable stream itself, instead of being methods of an object returned from the upload stream constructor method.
 
-If you have questions about how to migrate from the older version of the package to a newer version feel free to open an issue with your code example.
+If you have questions about how to migrate from the older version of the package after reviewing these docs feel free to open an issue with your code example.
 
 ### Tuning configuration of the AWS SDK
 
