@@ -4,19 +4,7 @@ var expect     = require('chai').expect,
 
 // Define a stubbed out version of the AWS S3 Node.js client
 var AWSstub = {
-  S3: function (connectionDetails) {
-
-    if (connectionDetails) {
-      expect(connectionDetails).to.have.property('accessKeyId');
-      expect(connectionDetails.accessKeyId).to.equal('accessKey');
-
-      expect(connectionDetails).to.have.property('secretAccessKey');
-      expect(connectionDetails.secretAccessKey).to.equal('secretAccessKey');
-
-      expect(connectionDetails).to.have.property('region');
-      expect(connectionDetails.region).to.equal('region');
-    }
-
+  S3: function () {
     this.createMultipartUpload = function (details, callback) {
       // Make sure that this AWS function was called with the right parameters.
       expect(details).to.have.property('Bucket');
@@ -118,150 +106,127 @@ var AWSstub = {
   }
 };
 
-// Override the aws-sdk with out stubbed out version.
-var proxyquire = require('proxyquire');
-proxyquire.noCallThru();
-
-var UploadStream = proxyquire('../lib/s3-upload-stream.js', {'aws-sdk': AWSstub}).Uploader;
+var s3Stream = require('../lib/s3-upload-stream.js');
 
 describe('Creating upload stream', function () {
-  describe('With no S3 connection details passed to constructor', function () {
-    var uploadStream, uploadObject;
+  describe('Before specifying an S3 client', function () {
+    var uploadStream;
 
-    before(function (done) {
-      uploadObject = new UploadStream(
-        {
+    it('should throw an error', function (done) {
+      try {
+        uploadStream = s3Stream.upload({
           "Bucket": "test-bucket-name",
           "Key": "test-file-name"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
-    });
+        });
 
-    it('response should be instance of writable stream', function () {
-      expect(uploadStream).to.be.instanceof(Writable);
+        done();
+      }
+      catch (e) {
+        done();
+      }
     });
   });
 
-  describe('With an S3 client passed to constructor', function () {
-    var uploadStream, uploadObject;
+  describe('After specifying an S3 client', function () {
+    var uploadStream;
 
     before(function (done) {
-      uploadObject = new UploadStream(
-        {
-          s3Client: new AWSstub.S3()
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "test-file-name"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
+      s3Stream.client(new AWSstub.S3());
+
+      uploadStream = s3Stream.upload({
+        "Bucket": "test-bucket-name",
+        "Key": "test-file-name"
+      });
+
+      uploadStream.on('error', function () {
+        throw "Did not expect to receive an error";
+      });
+
+      done();
     });
 
-    it('response should be instance of writable stream', function () {
-      expect(uploadStream).to.be.instanceof(Writable);
-    });
-  });
-
-  describe('With hardcoded AWS API credentials passed to constructor', function () {
-    var uploadStream, uploadObject;
-
-    before(function (done) {
-      uploadObject = new UploadStream(
-        {
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretAccessKey',
-          region: 'region'
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "test-file-name"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
-    });
-
-    it('response should be instance of writable stream', function () {
-      expect(uploadStream).to.be.instanceof(Writable);
+    it('should return an instance of Writable stream', function () {
+       expect(uploadStream).to.be.instanceof(Writable);
     });
   });
 });
 
 describe('Stream Methods', function () {
-  var uploadStream, uploadObject;
+  var uploadStream;
 
   before(function (done) {
-    uploadObject = new UploadStream(
-      {
-        s3Client: new AWSstub.S3()
-      },
-      {
-        "Bucket": "test-bucket-name",
-        "Key": "test-file-name"
-      },
-      function (err, data) {
-        expect(err).to.equal(null);
-        uploadStream = data;
-        done();
-      }
-    );
+    uploadStream = s3Stream.upload({
+      "Bucket": "test-bucket-name",
+      "Key": "test-file-name"
+    });
+
+    uploadStream.on('error', function () {
+      throw "Did not expect to receive an error";
+    });
+
+    done();
+  });
+
+  it('writable stream should have a maxPartSize method', function () {
+    expect(uploadStream.maxPartSize).to.be.a('function');
+  });
+
+  it('writable stream should have a concurrentParts method', function () {
+    expect(uploadStream.concurrentParts).to.be.a('function');
   });
 
   describe('Setting max part size to a value greater than 5 MB', function () {
     it('max part size should be set to that value', function () {
-      uploadObject.maxPartSize(20971520);
-      expect(uploadObject.partSizeThreshold).to.equal(20971520);
+      uploadStream.maxPartSize(20971520);
+      expect(uploadStream.getMaxPartSize()).to.equal(20971520);
     });
   });
 
   describe('Setting max part size to a value less than 5 MB', function () {
     it('max part size should be set to 5 MB exactly', function () {
-      uploadObject.maxPartSize(4242880);
-      expect(uploadObject.partSizeThreshold).to.equal(5242880);
+      uploadStream.maxPartSize(4242880);
+      expect(uploadStream.getMaxPartSize()).to.equal(5242880);
+    });
+  });
+
+  describe('Setting concurrent parts to number greater than 1', function () {
+    it('concurrent parts should be set to that number', function () {
+      uploadStream.concurrentParts(5);
+      expect(uploadStream.getConcurrentParts()).to.equal(5);
+    });
+  });
+
+  describe('Setting concurrent parts to number less than 1', function () {
+    it('concurrent parts should be set to 1', function () {
+      uploadStream.concurrentParts(-2);
+      expect(uploadStream.getConcurrentParts()).to.equal(1);
     });
   });
 });
 
-describe('Piping data into the upload stream', function () {
-  var uploadStream, uploadObject;
+describe('Piping data into the writable upload stream', function () {
+  var uploadStream;
 
   before(function (done) {
-    uploadObject = new UploadStream(
-      {
-        s3Client: new AWSstub.S3()
-      },
-      {
-        "Bucket": "test-bucket-name",
-        "Key": "test-file-name"
-      },
-      function (err, data) {
-        expect(err).to.equal(null);
-        uploadStream = data;
-        done();
-      }
-    );
+    uploadStream = s3Stream.upload({
+      "Bucket": "test-bucket-name",
+      "Key": "test-file-name"
+    });
+
+    uploadStream.on('error', function () {
+      throw "Did not expect to receive an error";
+    });
+
+    done();
   });
 
-  it('should emit valid chunk and uploaded events', function (done) {
+  it('should emit valid part and uploaded events', function (done) {
     var file = fs.createReadStream(process.cwd() + '/tests/test.js');
 
-    var chunk = false, uploaded = false;
+    var part = false, uploaded = false;
 
-    uploadStream.on('chunk', function (details) {
-      chunk = true;
+    uploadStream.on('part', function (details) {
+      part = true;
 
       expect(details).to.have.property('ETag');
       expect(details.ETag).to.equal('etag');
@@ -275,14 +240,14 @@ describe('Piping data into the upload stream', function () {
       expect(details).to.have.property('uploadedSize');
       expect(details.uploadedSize).to.be.an.integer;
 
-      if (chunk & uploaded)
+      if (part & uploaded)
         done();
     });
 
     uploadStream.on('uploaded', function () {
       uploaded = true;
 
-      if (chunk & uploaded)
+      if (part & uploaded)
         done();
     });
 
@@ -298,46 +263,30 @@ describe('Piping data into the upload stream', function () {
 
 describe('S3 Error catching', function () {
   describe('Error creating multipart upload', function () {
-    var uploadObject;
+    it('should emit an error', function (done) {
+      var uploadStream = s3Stream.upload({
+        "Bucket": "test-bucket-name",
+        "Key": "create-fail"
+      });
 
-    it('should return an error to the callback', function (done) {
-      uploadObject = new UploadStream(
-        {
-          s3Client: new AWSstub.S3()
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "create-fail"
-        },
-        function (err) {
-          expect(err).to.be.a('string');
-          done();
-        }
-      );
+      uploadStream.on('error', function () {
+        done();
+      });
     });
   });
 
   describe('Error uploading part', function () {
-    var uploadStream, uploadObject;
+    var uploadStream;
 
     before(function (done) {
-      uploadObject = new UploadStream(
-        {
-          s3Client: new AWSstub.S3()
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "upload-fail"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
+      uploadStream = s3Stream.upload({
+        "Bucket": "test-bucket-name",
+        "Key": "upload-fail"
+      });
+      done();
     });
 
-    it('should abort the multipart upload and emit an error', function (done) {
+    it('should emit an error', function (done) {
       var file = fs.createReadStream(process.cwd() + '/tests/test.js');
 
       uploadStream.on('error', function (err) {
@@ -356,26 +305,17 @@ describe('S3 Error catching', function () {
   });
 
   describe('Error completing upload', function () {
-    var uploadStream, uploadObject;
+    var uploadStream;
 
     before(function (done) {
-      uploadObject = new UploadStream(
-        {
-          s3Client: new AWSstub.S3()
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "complete-fail"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
+      uploadStream = s3Stream.upload({
+        "Bucket": "test-bucket-name",
+        "Key": "complete-fail"
+      });
+      done();
     });
 
-    it('should abort the multipart upload and emit an error', function (done) {
+    it('should emit an error', function (done) {
       var file = fs.createReadStream(process.cwd() + '/tests/test.js');
 
       uploadStream.on('error', function (err) {
@@ -394,23 +334,14 @@ describe('S3 Error catching', function () {
   });
 
   describe('Error aborting upload', function () {
-    var uploadStream, uploadObject;
+    var uploadStream;
 
     before(function (done) {
-      uploadObject = new UploadStream(
-        {
-          s3Client: new AWSstub.S3()
-        },
-        {
-          "Bucket": "test-bucket-name",
-          "Key": "abort-fail"
-        },
-        function (err, data) {
-          expect(err).to.equal(null);
-          uploadStream = data;
-          done();
-        }
-      );
+      uploadStream = s3Stream.upload({
+        "Bucket": "test-bucket-name",
+        "Key": "abort-fail"
+      });
+      done();
     });
 
     it('should emit an error', function (done) {

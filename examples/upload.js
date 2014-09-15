@@ -1,46 +1,37 @@
 #!/usr/bin/env node
-
-var Uploader = require('../lib/s3-upload-stream.js').Uploader,
+var s3Stream = require('../lib/s3-upload-stream.js'),
+    AWS      = require('aws-sdk'),
     zlib     = require('zlib'),
     fs       = require('fs');
 
-var read = fs.createReadStream('./path/to/file.ext');
+// JSON file containing AWS API credentials.
+AWS.config.loadFromPath('./config.json');
+
+// Set the client to be used for the upload.
+s3Stream.client(new AWS.S3());
+
+// Create the streams
+var read = fs.createReadStream('../lib/s3-upload-stream.js');
 var compress = zlib.createGzip();
+var upload = s3Stream.upload({
+  "Bucket": "bucket-name",
+  "Key": "key-name"
+});
 
-var UploadStreamObject = new Uploader(
-  // Connection details. (Optional if your credentials are specified
-  // via environment variables or AMI role.)
-  {
-    "accessKeyId": "REDACTED",
-    "secretAccessKey": "REDACTED",
-    "region": "us-east-1"
-  },
-  // Upload destination details.
-  // For a full list of possible parameters see:
-  // http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createMultipartUpload-property
-  {
-    "Bucket": "your-bucket-name",
-    "Key": "uploaded-file-name " + new Date()
-  },
-  function (err, uploadStream)
-  {
-    if (err)
-      console.log(err, uploadStream);
-    else
-    {
-      // This event is emitted when a single part of the stream is uploaded.
-      uploadStream.on('chunk', function (data) {
-        console.log(data);
-      });
+// Handle errors.
+upload.on('error', function (error) {
+  console.log(error);
+});
 
-      // Emitted when all parts have been flushed to S3 and the multipart
-      // upload has been finalized.
-      uploadStream.on('uploaded', function (data) {
-        console.log(data);
-      });
+// Handle progress.
+upload.on('part', function (details) {
+  console.log(details);
+});
 
-      // Pipe the file stream through Gzip compression and upload result to S3.
-      read.pipe(compress).pipe(uploadStream);
-    }
-  }
-);
+// Handle upload completion.
+upload.on('uploaded', function (details) {
+  console.log(details);
+});
+
+// Pipe the incoming filestream through compression, and up to S3.
+read.pipe(compress).pipe(upload);

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+#### 1.0.0 (2014-09-15)
+
+Major overhaul of the functional interface. Breaks compatability with older versions of the module in favor of a cleaner, more streamlined approach. A migration guide for users of older versions of the module has been included in the documentation.
+
 #### 0.6.2 (2014-08-31)
 
 Upgrading the AWS SDK dependency to the latest version. Fixes issue #11

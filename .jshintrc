@@ -23,6 +23,7 @@
         "process",
         "exports",
         "console",
+        "setImmediate",
         "Buffer",
         "module"
     ],
