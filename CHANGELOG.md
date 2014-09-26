@@ -1,6 +1,10 @@
 Changelog
 =========
 
+#### 1.0.2 (2014-09-26)
+
+Now emits a "finish" event, as well as the "uploaded" event, in order to adhere to Node.js writable stream spec.
+
 #### 1.0.1 (2014-09-26)
 
 Fixed error in usage in the documentation and examples. The examples did not use the "new" keyword when creating the upload stream, so there were scope issues when doing parallel uploads. This has been clarified and corrected in the documentation and examples.

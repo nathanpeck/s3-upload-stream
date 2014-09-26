@@ -6,13 +6,13 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
+#### 1.0.2 (2014-09-26)
+
+Now emits a "finish" event, as well as the "uploaded" event, in order to adhere to Node.js writable stream spec.
+
 #### 1.0.1 (2014-09-26)
 
 Fixed error in usage in the documentation and examples. The examples did not use the "new" keyword when creating the upload stream, so there were scope issues when doing parallel uploads. This has been clarified and corrected in the documentation and examples.
-
-#### 1.0.0 (2014-09-15)
-
-Major overhaul of the functional interface. Breaks compatability with older versions of the module in favor of a cleaner, more streamlined approach. A migration guide for users of older versions of the module has been included in the documentation.
 
 [Historical Changelogs](CHANGELOG.md)
 
