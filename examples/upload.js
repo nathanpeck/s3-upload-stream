@@ -13,7 +13,7 @@ s3Stream.client(new AWS.S3());
 // Create the streams
 var read = fs.createReadStream('../lib/s3-upload-stream.js');
 var compress = zlib.createGzip();
-var upload = s3Stream.upload({
+var upload = new s3Stream.upload({
   "Bucket": "bucket-name",
   "Key": "key-name"
 });

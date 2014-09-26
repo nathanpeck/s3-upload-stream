@@ -6,13 +6,13 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
+#### 1.0.1 (2014-09-26)
+
+Fixed error in usage in the documentation and examples. The examples did not use the "new" keyword when creating the upload stream, so there were scope issues when doing parallel uploads. This has been clarified and corrected in the documentation and examples.
+
 #### 1.0.0 (2014-09-15)
 
 Major overhaul of the functional interface. Breaks compatability with older versions of the module in favor of a cleaner, more streamlined approach. A migration guide for users of older versions of the module has been included in the documentation.
-
-#### 0.6.2 (2014-08-31)
-
-Upgrading the AWS SDK dependency to the latest version. Fixes issue #11
 
 [Historical Changelogs](CHANGELOG.md)
 
@@ -44,7 +44,7 @@ s3Stream.client(new AWS.S3());
 // Create the streams
 var read = fs.createReadStream('/path/to/a/file');
 var compress = zlib.createGzip();
-var upload = s3Stream.upload({
+var upload = new s3Stream.upload({
   "Bucket": "bucket-name",
   "Key": "key-name"
 });
@@ -118,7 +118,7 @@ var s3Stream = require('s3-upload-stream'),
 s3Stream.client(new AWS.S3());
 
 var read = fs.createReadStream('/path/to/a/file');
-var upload = s3Client.upload({
+var upload = new s3Client.upload({
   "Bucket": "bucket-name",
   "Key": "key-name",
   "ACL": "public-read",
@@ -144,7 +144,7 @@ var s3Stream = require('s3-upload-stream'),
 s3Stream.client(new AWS.S3());
 
 var read = fs.createReadStream('/path/to/a/file');
-var upload = s3Client.upload({
+var upload = new s3Client.upload({
   "Bucket": "bucket-name",
   "Key": "key-name"
 });
@@ -167,7 +167,7 @@ var s3Stream = require('s3-upload-stream'),
 s3Stream.client(new AWS.S3());
 
 var read = fs.createReadStream('/path/to/a/file');
-var upload = s3Client.upload({
+var upload = new s3Client.upload({
   "Bucket": "bucket-name",
   "Key": "key-name"
 });
