@@ -58,12 +58,22 @@ upload.on('error', function (error) {
   console.log(error);
 });
 
-// Handle progress.
+/* Handle progress. Example details object:
+   { ETag: '"f9ef956c83756a80ad62f54ae5e7d34b"',
+     PartNumber: 5,
+     receivedSize: 29671068,
+     uploadedSize: 29671068 }
+*/
 upload.on('part', function (details) {
   console.log(details);
 });
 
-// Handle upload completion.
+/* Handle upload completion. Example details object:
+   { Location: 'https://bucketName.s3.amazonaws.com/filename.ext',
+     Bucket: 'bucketName',
+     Key: 'filename.ext',
+     ETag: '"bf2acbedf84207d696c8da7dbb205b9f-5"' }
+*/
 upload.on('uploaded', function (details) {
   console.log(details);
 });
@@ -76,7 +86,7 @@ read.pipe(compress).pipe(upload);
 
 ### package.client(s3);
 
-Configures the S3 client for s3-upload-stream to use.
+Configures the S3 client for s3-upload-stream to use. Please note that this module has only been tested with AWS SDK 2.0 and greater.
 
 This module does not include the AWS SDK itself. Rather you must require the AWS SDK in your own application code, instantiate an S3 client and then supply it to s3-upload-stream.
 
