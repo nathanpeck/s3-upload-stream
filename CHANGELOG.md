@@ -1,6 +1,10 @@
 Changelog
 =========
 
+#### 1.0.3 (2014-10-12)
+
+Scope changes for certain use cases.
+
 #### 1.0.2 (2014-09-26)
 
 Now emits a "finish" event, as well as the "uploaded" event, in order to adhere to Node.js writable stream spec.
