@@ -11,11 +11,11 @@ AWS.config.loadFromPath('./config.json');
 s3Stream.client(new AWS.S3());
 
 // Create the streams
-var read = fs.createReadStream('path/to/file');
+var read = fs.createReadStream('./video.mp4');
 var compress = zlib.createGzip();
 var upload = new s3Stream.upload({
-  "Bucket": "bucket-name",
-  "Key": "key-name"
+  "Bucket": "storydesk",
+  "Key": "video.mp4.gz"
 });
 
 // Handle errors.
