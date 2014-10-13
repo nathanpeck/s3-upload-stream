@@ -1,7 +1,7 @@
 {
   "name": "s3-upload-stream",
   "description": "Writeable stream for uploading content of unknown size to S3 via the multipart API.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "Nathan Peck",
     "email": "nathan@storydesk.com"
@@ -15,9 +15,7 @@
     "aws-sdk":    "2.0.17",
     "chai":       "1.8.1"
   },
-  "dependencies": {
-    "setimmediate": "1.0.2"
-  },
+  "dependencies": {},
   "keywords": [
     "aws",
     "s3",

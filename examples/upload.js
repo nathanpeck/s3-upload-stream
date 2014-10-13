@@ -11,7 +11,7 @@ AWS.config.loadFromPath('./config.json');
 s3Stream.client(new AWS.S3());
 
 // Create the streams
-var read = fs.createReadStream('../lib/s3-upload-stream.js');
+var read = fs.createReadStream('path/to/file');
 var compress = zlib.createGzip();
 var upload = new s3Stream.upload({
   "Bucket": "bucket-name",

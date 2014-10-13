@@ -6,13 +6,13 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 ### Changelog
 
-#### 1.0.2 (2014-09-26)
+#### 1.0.4 (2014-10-13)
 
-Now emits a "finish" event, as well as the "uploaded" event, in order to adhere to Node.js writable stream spec.
+Getting rid of the use of setImmeadiate. Also now the MPU is not initialized until data is actually received by the writable stream, and error checking verifies that data has actually been uploaded to S3 before trying to end the stream. This fixes an issue where empty incoming streams were causing errors to come back from S3 as the module was attempting to complete an empty MPU.
 
-#### 1.0.1 (2014-09-26)
+#### 1.0.3 (2014-10-12)
 
-Fixed error in usage in the documentation and examples. The examples did not use the "new" keyword when creating the upload stream, so there were scope issues when doing parallel uploads. This has been clarified and corrected in the documentation and examples.
+Some minor scope adjustments.
 
 [Historical Changelogs](CHANGELOG.md)
 

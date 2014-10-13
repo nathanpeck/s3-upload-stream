@@ -269,8 +269,14 @@ describe('S3 Error catching', function () {
         "Key": "create-fail"
       });
 
+      var file = fs.createReadStream(process.cwd() + '/tests/test.js');
+
       uploadStream.on('error', function () {
         done();
+      });
+
+      file.on('open', function () {
+        file.pipe(uploadStream);
       });
     });
   });
