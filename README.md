@@ -8,7 +8,7 @@ A pipeable write stream which uploads to Amazon S3 using the multipart file uplo
 
 #### 1.0.4 (2014-10-13)
 
-Getting rid of the use of setImmeadiate. Also now the MPU is not initialized until data is actually received by the writable stream, and error checking verifies that data has actually been uploaded to S3 before trying to end the stream. This fixes an issue where empty incoming streams were causing errors to come back from S3 as the module was attempting to complete an empty MPU.
+Getting rid of the use of setImmediate. Also now the MPU is not initialized until data is actually received by the writable stream, and error checking verifies that data has actually been uploaded to S3 before trying to end the stream. This fixes an issue where empty incoming streams were causing errors to come back from S3 as the module was attempting to complete an empty MPU.
 
 #### 1.0.3 (2014-10-12)
 
