@@ -1,6 +1,14 @@
 Changelog
 =========
 
+#### 1.0.6 (2014-10-20)
+
+Removing global state, and adding pause and resume functionality.
+
+#### 1.0.5 (2014-10-13)
+
+Changing how buffers are subdivided, in order to provide support for in browser operation.
+
 #### 1.0.4 (2014-10-13)
 
 Getting rid of the use of setImmeadiate. Also now the MPU is not initialized until data is actually received by the writable stream, and error checking verifies that data has actually been uploaded to S3 before trying to end the stream. This fixes an issue where empty incoming streams were causing errors to come back from S3 as the module was attempting to complete an empty MPU.

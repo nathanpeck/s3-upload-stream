@@ -106,15 +106,17 @@ var AWSstub = {
   }
 };
 
-var s3Stream = require('../lib/s3-upload-stream.js');
+var s3StreamClient = require('../lib/s3-upload-stream.js')(new AWSstub.S3());
 
-describe('Creating upload stream', function () {
-  describe('Before specifying an S3 client', function () {
+describe('Creating upload client', function () {
+  describe('Without specifying an S3 client', function () {
     var uploadStream;
 
     it('should throw an error', function (done) {
+      var BadStreamClient = require('../lib/s3-upload-stream.js');
+
       try {
-        uploadStream = new s3Stream.upload({
+        uploadStream = BadStreamClient.upload({
           "Bucket": "test-bucket-name",
           "Key": "test-file-name"
         });
@@ -130,10 +132,10 @@ describe('Creating upload stream', function () {
   describe('After specifying an S3 client', function () {
     var uploadStream;
 
-    before(function (done) {
-      s3Stream.client(new AWSstub.S3());
+    it('should return an instance of Writable stream', function () {
+      var GoodStreamClient = require('../lib/s3-upload-stream.js')(new AWSstub.S3());
 
-      uploadStream = new s3Stream.upload({
+      uploadStream = GoodStreamClient.upload({
         "Bucket": "test-bucket-name",
         "Key": "test-file-name"
       });
@@ -142,11 +144,7 @@ describe('Creating upload stream', function () {
         throw "Did not expect to receive an error";
       });
 
-      done();
-    });
-
-    it('should return an instance of Writable stream', function () {
-       expect(uploadStream).to.be.instanceof(Writable);
+      expect(uploadStream).to.be.instanceof(Writable);
     });
   });
 });
@@ -155,7 +153,7 @@ describe('Stream Methods', function () {
   var uploadStream;
 
   before(function (done) {
-    uploadStream = new s3Stream.upload({
+    uploadStream = s3StreamClient.upload({
       "Bucket": "test-bucket-name",
       "Key": "test-file-name"
     });
@@ -208,7 +206,7 @@ describe('Piping data into the writable upload stream', function () {
   var uploadStream;
 
   before(function (done) {
-    uploadStream = new s3Stream.upload({
+    uploadStream = s3StreamClient.upload({
       "Bucket": "test-bucket-name",
       "Key": "test-file-name"
     });
@@ -285,20 +283,20 @@ describe('Piping data into a resumed upload stream', function () {
   var uploadStream;
 
   before(function (done) {
-    uploadStream = new s3Stream.upload({
-      "Bucket": "test-bucket-name",
-      "Key": "test-file-name"
+    uploadStream = s3StreamClient.upload({
+      Bucket: "test-bucket-name",
+      Key: "test-file-name"
     }, {
       // when 'ready' event fires, should have this ID
-      "UploadId": "this-tests-specific-upload-id",
-      "Parts": [
+      UploadId: "this-tests-specific-upload-id",
+      Parts: [
         {
-          "PartNumber": 1,
-          "ETag": "etag-1"
+          PartNumber: 1,
+          ETag: "etag-1"
         },
         {
-          "PartNumber": 2,
-          "ETag": "etag-2"
+          PartNumber: 2,
+          ETag: "etag-2"
         }
       ]
     });
@@ -364,7 +362,7 @@ describe('Piping data into a resumed upload stream', function () {
 describe('S3 Error catching', function () {
   describe('Error creating multipart upload', function () {
     it('should emit an error', function (done) {
-      var uploadStream = new s3Stream.upload({
+      var uploadStream = s3StreamClient.upload({
         "Bucket": "test-bucket-name",
         "Key": "create-fail"
       });
@@ -385,7 +383,7 @@ describe('S3 Error catching', function () {
     var uploadStream;
 
     before(function (done) {
-      uploadStream = new s3Stream.upload({
+      uploadStream = s3StreamClient.upload({
         "Bucket": "test-bucket-name",
         "Key": "upload-fail"
       });
@@ -414,7 +412,7 @@ describe('S3 Error catching', function () {
     var uploadStream;
 
     before(function (done) {
-      uploadStream = new s3Stream.upload({
+      uploadStream = s3StreamClient.upload({
         "Bucket": "test-bucket-name",
         "Key": "complete-fail"
       });
@@ -443,7 +441,7 @@ describe('S3 Error catching', function () {
     var uploadStream;
 
     before(function (done) {
-      uploadStream = new s3Stream.upload({
+      uploadStream = s3StreamClient.upload({
         "Bucket": "test-bucket-name",
         "Key": "abort-fail"
       });
