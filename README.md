@@ -139,6 +139,66 @@ var upload = new s3Client.upload({
 read.pipe(upload);
 ```
 
+### package.upload(destination, session)
+
+Resume an incomplete multipart upload from a previous session by providing a `session` object with an upload ID, and ETag and numbers for each part. `destination` details is as above.
+
+__Example:__
+
+```js
+var s3Stream = require('s3-upload-stream'),
+    AWS      = require('aws-sdk');
+
+s3Stream.client(new AWS.S3());
+
+var read = fs.createReadStream('/path/to/a/file');
+var upload = new s3Client.upload({
+  "Bucket": "bucket-name",
+  "Key": "key-name",
+  "ACL": "public-read",
+  "StorageClass": "REDUCED_REDUNDANCY",
+  "ContentType": "binary/octet-stream"
+}, {
+  "UploadId": "f1j2b47238f12984f71b2o8347f12",
+  "Parts": [
+    {
+      "ETag": "3k2j3h45t9v8aydgajsda",
+      "PartNumber": 1
+    },
+    {
+      "Etag": "kjgsdfg876sd8fgk3j44t",
+      "PartNumber": 2
+    }
+  ]
+});
+
+read.pipe(upload);
+```
+
+### package.pause()
+
+Pause an active multipart upload stream.
+
+Calling `pause()` will immediately:
+
+* stop accepting data from an input stream,
+* stop submitting new parts for upload, and
+* emit a `pausing` event with the number of parts that are still mid-upload.
+
+When mid-upload parts are finished, a `paused` event will fire, including an object with `UploadId` and `Parts` data that can be used to resume an upload in a later session.
+
+### package.resume()
+
+Resume a paused multipart upload stream.
+
+Calling `resume()` will immediately:
+
+* resume accepting data from an input stream,
+* resume submitting new parts for upload, and
+* echo a `resume` event back to any listeners.
+
+It is safe to call `resume()` at any time after `pause()`. If the stream is between `pausing` and `paused`, then `resume()` will resume data flow and the `paused` event will not be fired.
+
 ## Optional Configuration
 
 ### stream.maxPartSize(sizeInBytes)
