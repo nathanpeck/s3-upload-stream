@@ -98,10 +98,9 @@ var AWS      = require('aws-sdk'),
 However, some environments may require you to keep your credentials in a file, or hardcoded. In that case you can use the following form:
 
 ```js
-#!/usr/bin/env node
 var AWS      = require('aws-sdk');
 
-// Make sure AWS credentials are loaded using on of the following techniques
+// Make sure AWS credentials are loaded using one of the following techniques
 AWS.config.loadFromPath('./config.json');
 AWS.config.update({accessKeyId: 'akid', secretAccessKey: 'secret'});
 
