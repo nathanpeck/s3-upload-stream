@@ -281,7 +281,6 @@ describe('Piping data into the writable upload stream', function () {
     Parts are passed in without gaps. Part number is calculated
     based on array length, not at inspecting given part numbers.
 */
-function nodescribe() {}; // DEBUG
 describe('Piping data into a resumed upload stream', function () {
   var uploadStream;
 
