@@ -40,7 +40,7 @@ AWS.config.loadFromPath('./config.json');
 // Create the streams
 var read = fs.createReadStream('/path/to/a/file');
 var compress = zlib.createGzip();
-var upload = new s3Stream.upload({
+var upload = s3Stream.upload({
   "Bucket": "bucket-name",
   "Key": "key-name"
 });
