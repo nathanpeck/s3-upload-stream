@@ -86,7 +86,7 @@ This module does not include the AWS SDK itself. Rather you must require the AWS
 
 The main advantage of this is that rather than being stuck with a set version of the AWS SDK that ships with s3-upload-stream you can ensure that s3-upload-stream is using whichever verison of the SDK you want.
 
-When setting up the S3 client the recommended approach for credential management is to [set your AWS API keys using environment variables](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html) or [AMI roles](http://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html).
+When setting up the S3 client the recommended approach for credential management is to [set your AWS API keys using environment variables](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html) or [IAM roles](http://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html).
 
 If you are following this approach then you can configure the S3 client very simply:
 
