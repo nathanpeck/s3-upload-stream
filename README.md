@@ -1,6 +1,6 @@
 ## s3-upload-stream [![Build Status](https://travis-ci.org/nathanpeck/s3-upload-stream.svg)](https://travis-ci.org/nathanpeck/s3-upload-stream)
 
-A pipeable write stream which uploads to Amazon S3 using the multipart file upload API. **NOTE: This module is mostly deprecated now that AWS had `S3.upload()` which implements the same behavior, but built in to the AWS SDK. Unless you need the pause and resume functionality in this module you should probably just use the official AWS technique for uploading streams using the multipart API.**
+A pipeable write stream which uploads to Amazon S3 using the multipart file upload API. **NOTE: This module is mostly deprecated now that AWS had [`S3.upload()`](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#upload-property) which implements the same behavior, but built in to the AWS SDK. Unless you need the pause and resume functionality in this module you should probably just use the official AWS technique for uploading streams using the multipart API.**
 
 [![NPM](https://nodei.co/npm/s3-upload-stream.png?downloads=true)](https://www.npmjs.org/package/s3-upload-stream)
 
