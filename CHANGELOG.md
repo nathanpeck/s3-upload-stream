@@ -1,4 +1,4 @@
-Changelog
+Changelog [![Changelog Status](https://changelogs.md/img/changelog-check-green.svg)](https://changelogs.md/github/nathanpeck/s3-upload-stream/)
 =========
 
 #### 1.0.6 (2014-10-20)
